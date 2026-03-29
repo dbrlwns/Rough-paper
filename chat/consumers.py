@@ -30,6 +30,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # self.close_code 로 연결 끊긴 이유를 확인할 수 있음.
 
     async def receive(self, text_data):
+        # loads() : Json 문자열을 파이썬 딕셔너리로 변환
         data = json.loads(text_data)
         message = data['message']
         author = data['author']
@@ -50,6 +51,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         # 각 클라이언트에게 WebSocket으로 전달
         await self.send(text_data=json.dumps({
+            # dumps() : 파이썬 딕셔너리를 json 문자열로 변환 {'a':'b'} -> '{'a':'b'}'
+            # websocket은 문자열만 주고받을 수 있어서 변환이 필수임.
             'message': event['message'],
             'author': event['author'],
         }))

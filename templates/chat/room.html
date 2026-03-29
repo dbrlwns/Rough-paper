@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ room.name }}</title>
+</head>
+<body>
+    <h1>{{ room.name }}</h1>
+
+    <div id="chat-log">
+        {% for message in messages %}
+            <div>
+                <strong>{{ message.author }}</strong>: {{ message.content }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <hr>
+
+    <div>
+        <input id="nickname-input" type="text" placeholder="닉네임" />
+        <input id="message-input" type="text" placeholder="메시지를 입력하세요" />
+        <button id="send-btn">전송</button>
+    </div>
+
+    <script>
+        const roomSlug = "{{ room.slug }}";
+        const socket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomSlug}/`); // 브라우저 내장 api
+
+        socket.onmessage = function(e) { // 메시지 수신 시 실행
+            {#console.log(e.data)#}
+            const data = JSON.parse(e.data);
+            const chatLog = document.getElementById('chat-log');
+            const div = document.createElement('div');
+            div.innerHTML = `<strong>${data.author}</strong>: ${data.message}`;
+            chatLog.appendChild(div);
+        };
+
+        socket.onclose = function() { // 연결 끊길 시 실행
+            console.log('WebSocket 연결이 끊겼습니다.');
+        };
+
+        document.getElementById('message-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('send-btn').click();
+            }
+        });
+
+        document.getElementById('send-btn').onclick = function() {
+            const nickname = document.getElementById('nickname-input').value.trim();
+            const message = document.getElementById('message-input').value.trim();
+
+            if (!nickname) {
+                alert('닉네임을 입력해주세요.');
+                return;
+            }
+            if (!message) return;
+
+            socket.send(JSON.stringify({
+                'author': nickname,
+                'message': message,
+            }));
+
+            document.getElementById('message-input').value = '';
+        };
+    </script>
+</body>
+</html>
