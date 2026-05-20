@@ -11,6 +11,10 @@
 - 도서 검색
 - 도서 기반 독서 기록
 
+## 문서
+
+- [로그인/권한 구조](docs/login_auth.md)
+
 <br /><br />
 ## 기술 스택
 - Backend: Django
